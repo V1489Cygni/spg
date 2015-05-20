@@ -1,0 +1,2 @@
+# spg
+Simple parser generator.
