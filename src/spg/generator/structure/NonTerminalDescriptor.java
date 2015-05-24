@@ -3,13 +3,13 @@ package spg.generator.structure;
 import java.util.List;
 
 public class NonTerminalDescriptor {
+    public final String name;
     public final List<Integer> rules;
-    public final List<String> types;
-    public final List<String> attributes;
+    public final String fields;
 
-    public NonTerminalDescriptor(List<Integer> rules, List<String> types, List<String> attributes) {
+    public NonTerminalDescriptor(String name, List<Integer> rules, String fields) {
+        this.name = name;
         this.rules = rules;
-        this.types = types;
-        this.attributes = attributes;
+        this.fields = fields;
     }
 }

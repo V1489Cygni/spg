@@ -1,13 +1,13 @@
 package spg.test;
 
-import spg.runtime.Lexer;
 import spg.runtime.ParseException;
 import spg.runtime.Parser;
 
 public class Test {
     public static void main(String[] args) throws ParseException {
-        Parser parser = new Parser(new Lexer(), new ConfigurationImpl());
-        NT1 nt1 = (NT1) parser.parse("00011101");
-        System.out.println(nt1.n);
+        String s = "3 + 5;\n2 * 5 + 2 * (5 + (-3));\n12";
+        Parser p = new Parser(new Config());
+        L l = (L) p.parse(s);
+        l.list.forEach(System.out::println);
     }
 }

@@ -5,8 +5,6 @@ import java.util.List;
 public interface Configuration {
     int getLength(int n);
 
-    RuleManager getManager();
-
     Table getTable();
 
     int getTerminalNumber();
@@ -16,4 +14,6 @@ public interface Configuration {
     List<String> getValues();
 
     List<Boolean> getIgnore();
+
+    Unit reduce(int i, List<Unit> rule);
 }

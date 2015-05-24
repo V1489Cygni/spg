@@ -6,16 +6,14 @@ import java.util.List;
 public class Parser {
     private final Configuration configuration;
     private final Lexer lexer;
-    private final RuleManager manager;
     private final Table table;
     private final List<Unit> stack = new ArrayList<>();
     private final List<Integer> states = new ArrayList<>();
 
-    public Parser(Lexer lexer, Configuration configuration) {
-        this.lexer = lexer;
+    public Parser(Configuration configuration) {
+        lexer = new Lexer();
         lexer.setConfig(configuration);
         this.configuration = configuration;
-        this.manager = configuration.getManager();
         this.table = configuration.getTable();
     }
 
@@ -43,7 +41,7 @@ public class Parser {
                         stack.remove(stack.size() - 1);
                         states.remove(states.size() - 1);
                     }
-                    Unit unit = manager.reduce(n, args);
+                    Unit unit = configuration.reduce(n, args);
                     int x = table.next.get(states.get(states.size() - 1)).get(unit._number_);
                     stack.add(unit);
                     states.add(x);
