@@ -43,7 +43,7 @@ public class GrammarParser {
             List<String> actions = new ArrayList<>();
             parseRules(sc, nt, rules, actions);
             for (int i = 0; i < ntNames.size(); i++) {
-                if (ntNames.equals(s9)) {
+                if (ntNames.get(i).equals(s9)) {
                     String temp = ntNames.get(0);
                     ntNames.set(0, s9);
                     ntNames.set(i, temp);
@@ -163,13 +163,18 @@ public class GrammarParser {
                 return;
             }
             names.add(s);
-            if (!sc.next().equals("=") || !sc.next().equals("{")) {
+            String a = sc.next(), b = sc.next();
+            if (!a.equals("=") || !b.equals("{") && !b.equals("{}")) {
                 throw new ParseException("Non-terminal declaration expected.");
             }
-            Result r = parseCode(new AdditiveScanner(sc));
-            fields.add(r.first);
-            if (new Scanner(r.second).hasNext()) {
-                throw new ParseException("Nothing expected after non-terminal declaration.");
+            if (b.equals("{")) {
+                Result r = parseCode(new AdditiveScanner(sc));
+                fields.add(r.first);
+                if (new Scanner(r.second).hasNext()) {
+                    throw new ParseException("Nothing expected after non-terminal declaration.");
+                }
+            } else {
+                fields.add("");
             }
         }
     }
@@ -184,22 +189,34 @@ public class GrammarParser {
             while (true) {
                 nt.add(name);
                 rules.add(new ArrayList<>());
+                String s;
                 while (true) {
-                    String s = scanner.next();
-                    if (s.equals("{")) {
+                    s = scanner.next();
+                    if (s.equals("{") || s.equals("|") || s.equals(".") || s.equals("{}")) {
                         break;
                     }
                     rules.get(rules.size() - 1).add(s);
                 }
-                Result r = parseCode(scanner);
-                actions.add(r.first);
-                scanner = new AdditiveScanner(new AdditiveScanner(new Scanner(r.second)), scanner);
-                if (!scanner.hasNext()) {
-                    return;
-                }
-                String s = scanner.next();
-                if (!s.equals("|")) {
-                    scanner = new AdditiveScanner(new AdditiveScanner(new Scanner(s)), scanner);
+                if (s.equals("{") || s.equals("{}")) {
+                    if (s.equals("{")) {
+                        Result r = parseCode(scanner);
+                        actions.add(r.first);
+                        scanner = new AdditiveScanner(new AdditiveScanner(new Scanner(r.second)), scanner);
+                    } else {
+                        actions.add("");
+                    }
+                    if (!scanner.hasNext()) {
+                        return;
+                    }
+                    s = scanner.next();
+                    if (!s.equals("|")) {
+                        scanner = new AdditiveScanner(new AdditiveScanner(new Scanner(s)), scanner);
+                        break;
+                    }
+                } else if (s.equals("|")) {
+                    actions.add("");
+                } else {
+                    actions.add("");
                     break;
                 }
             }

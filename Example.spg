@@ -1,12 +1,14 @@
-package = spg.test
-class = Config
+package = example
+class = ExampleConfig
 start = L
 
 Imports:
+
 import java.util.List;
 import java.util.ArrayList;
 
 Terminals:
+
 SPACE = "\\s"
 NUMBER = "-?\\d+"
 PLUS = "\\+"
@@ -18,12 +20,14 @@ SEMICOLON = ";"
 ignore SPACE
 
 NonTerminals:
+
 L = { List<Integer> list; }
 E = { int value; }
 M = { int value; }
 U = { int value; }
 
 Rules:
+
 L -> L SEMICOLON E {
     res.list = $0.list;
     res.list.add($2.value);
@@ -31,16 +35,19 @@ L -> L SEMICOLON E {
     res.list = new ArrayList<>();
     res.list.add($0.value);
 }
+
 E -> M PLUS E {
     res.value = $0.value + $2.value;
 }  | M {
     res.value = $0.value;
 }
+
 M -> U MUL M {
     res.value = $0.value * $2.value;
 }  | U {
     res.value = $0.value;
 }
+
 U -> NUMBER {
     res.value = Integer.parseInt($0.value);
 }  | OPEN E CLOSE {

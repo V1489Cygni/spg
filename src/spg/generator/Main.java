@@ -24,7 +24,7 @@ public class Main {
             } catch (IOException e) {
                 System.err.println("Error while generating files: " + e.getMessage());
             } catch (GenerationException e) {
-                System.err.println("Conflict during table generation!");
+                System.err.println("Conflict during table generation: " + e.getMessage());
             } catch (ParseException e) {
                 System.err.println("Error while parsing grammar: " + e.getMessage());
             }

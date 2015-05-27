@@ -51,7 +51,7 @@ public class TableGenerator {
                         if (actions.get(i).get(situation.lookAhead).equals(Action.ERROR)) {
                             actions.get(i).set(situation.lookAhead, Action.ACCEPT);
                         } else {
-                            throw new GenerationException("Conflict!");
+                            throw new GenerationException("The grammar is not LR(1).");
                         }
                     } else {
                         if (actions.get(i).get(situation.lookAhead).equals(Action.ERROR)
@@ -60,13 +60,107 @@ public class TableGenerator {
                             actions.get(i).set(situation.lookAhead, Action.REDUCE);
                             next.get(i).set(situation.lookAhead, situation.rule);
                         } else {
-                            throw new GenerationException("Conflict!");
+                            throw new GenerationException("The grammar is not LR(1).");
                         }
                     }
                 }
             }
         }
-        return new Table(actions, next);
+        List<List<Integer>> merge = new ArrayList<>();
+        for (int i = 0; i < situations.size(); i++) {
+            int found = -1;
+            List<Situation> ns = situations.get(i);
+            for (int j = 0; j < merge.size(); j++) {
+                List<Situation> ms = situations.get(merge.get(j).get(0));
+                boolean ok = true;
+                for (Situation n1 : ns) {
+                    boolean fnd = false;
+                    for (Situation m : ms) {
+                        if (n1.rule == m.rule && n1.position == m.position) {
+                            fnd = true;
+                            break;
+                        }
+                    }
+                    if (!fnd) {
+                        ok = false;
+                        break;
+                    }
+                }
+                for (Situation n1 : ms) {
+                    boolean fnd = false;
+                    for (Situation m : ns) {
+                        if (n1.rule == m.rule && n1.position == m.position) {
+                            fnd = true;
+                            break;
+                        }
+                    }
+                    if (!fnd) {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok) {
+                    found = j;
+                    break;
+                }
+            }
+            if (found == -1) {
+                merge.add(new ArrayList<>());
+                merge.get(merge.size() - 1).add(i);
+            } else {
+                merge.get(found).add(i);
+            }
+        }
+        Map<Integer, Integer> nSt = new HashMap<>();
+        for (int i = 0; i < merge.size(); i++) {
+            for (int j = 0; j < merge.get(i).size(); j++) {
+                nSt.put(merge.get(i).get(j), i);
+            }
+        }
+        List<List<Action>> na = new ArrayList<>();
+        List<List<Integer>> nn = new ArrayList<>();
+        for (int i = 0; i < merge.size(); i++) {
+            na.add(generateActions(actions.get(i).size()));
+            nn.add(generateNext(next.get(i).size()));
+            for (int j = 0; j < merge.get(i).size(); j++) {
+                for (int k = 0; k < actions.get(merge.get(i).get(j)).size(); k++) {
+                    switch (actions.get(merge.get(i).get(j)).get(k)) {
+                        case SHIFT:
+                            int x = nSt.get(next.get(merge.get(i).get(j)).get(k));
+                            if (na.get(i).get(k).equals(Action.SHIFT) && nn.get(i).get(k) == x
+                                    || na.get(i).get(k).equals(Action.ERROR)) {
+                                na.get(i).set(k, Action.SHIFT);
+                                nn.get(i).set(k, x);
+                            } else {
+                                throw new GenerationException("The grammar is not LALR(1).");
+                            }
+                            break;
+                        case REDUCE:
+                            x = next.get(merge.get(i).get(j)).get(k);
+                            if (na.get(i).get(k).equals(Action.REDUCE) && nn.get(i).get(k) == x
+                                    || na.get(i).get(k).equals(Action.ERROR)) {
+                                na.get(i).set(k, Action.REDUCE);
+                                nn.get(i).set(k, x);
+                            } else {
+                                throw new GenerationException("The grammar is not LALR(1).");
+                            }
+                            break;
+                        case ACCEPT:
+                            if (na.get(i).get(k).equals(Action.ACCEPT) || na.get(i).get(k).equals(Action.ERROR)) {
+                                na.get(i).set(k, Action.ACCEPT);
+                            } else {
+                                throw new GenerationException("The grammar is not LALR(1).");
+                            }
+                            break;
+                        case ERROR:
+                            break;
+                        default:
+                            throw new AssertionError();
+                    }
+                }
+            }
+        }
+        return new Table(na, nn);
     }
 
     private static Map<Integer, Set<Integer>> first(Grammar grammar) {
