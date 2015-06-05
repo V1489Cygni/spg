@@ -17,7 +17,6 @@ public class Main {
             try {
                 Grammar grammar = GrammarParser.parse(args[0]);
                 Table table = TableGenerator.generateTable(grammar);
-                ClassGenerator.generateNonTerminals(grammar);
                 ConfigurationGenerator.generateConfiguration(grammar, table);
             } catch (FileNotFoundException e) {
                 System.err.println("Error while reading file: " + e.getMessage());

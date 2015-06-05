@@ -23,8 +23,8 @@ public class Parser {
         lexer.next();
         while (true) {
             Terminal t = lexer.getNext();
-            Action a = table.actions.get(states.get(states.size() - 1)).get(t._number_);
-            int n = table.next.get(states.get(states.size() - 1)).get(t._number_);
+            Action a = table.actions.get(states.get(states.size() - 1)).get(t.getNumber());
+            int n = table.next.get(states.get(states.size() - 1)).get(t.getNumber());
             switch (a) {
                 case SHIFT:
                     states.add(n);
@@ -42,7 +42,7 @@ public class Parser {
                         states.remove(states.size() - 1);
                     }
                     Unit unit = configuration.reduce(n, args);
-                    int x = table.next.get(states.get(states.size() - 1)).get(unit._number_);
+                    int x = table.next.get(states.get(states.size() - 1)).get(unit.getNumber());
                     stack.add(unit);
                     states.add(x);
                     break;

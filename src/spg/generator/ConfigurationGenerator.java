@@ -85,6 +85,12 @@ public class ConfigurationGenerator {
             writer.write(");\n");
         }
         writer.write("default:\nthrow new AssertionError();\n}\n}\n");
+        for (int i = 1; i < grammar.nonTerminals.size(); i++) {
+            String name = grammar.nonTerminals.get(i).name;
+            writer.write("public static class " + name + " extends Unit {\npublic " + name + "(){\nsuper(" + i + ");\n}\n");
+            writer.write(grammar.nonTerminals.get(i).fields);
+            writer.write("}\n");
+        }
         writer.write("}\n");
         writer.close();
     }
